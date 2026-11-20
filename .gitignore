@@ -1,0 +1,8 @@
+node_modules/
+.venv/
+__pycache__/
+*.vsix
+.DS_Store
+out/
+/examples/*.cool
+/examples/*.mcool

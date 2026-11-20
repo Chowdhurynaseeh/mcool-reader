@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{cspSource}}; script-src {{cspSource}};">
+    <link rel="stylesheet" href="{{styleUri}}">
+    <script defer src="{{scriptUri}}"></script>
+    <title>MCOOL Reader</title>
+</head>
+<body>
+    <main class="viewer">
+        <header class="document-header">
+            <span class="document-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <div class="document-name">
+                <h1 id="file-name">MCOOL Reader</h1>
+                <p id="file-details" hidden></p>
+            </div>
+            <div class="resolution-control" id="resolution-control" hidden>
+                <label for="resolution">Stored resolution</label>
+                <select id="resolution"></select>
+            </div>
+        </header>
+
+        <p class="notice" id="file-status" role="status">Reading Cooler metadata…</p>
+        <button type="button" class="button secondary" id="retry-metadata" hidden>Retry</button>
+
+        <div id="workspace" hidden>
+            <nav class="tabs" role="tablist" aria-label="Cooler views">
+                <button id="heatmap-tab" type="button" role="tab" aria-selected="true" aria-controls="heatmap-panel">Heatmap</button>
+                <button id="metadata-tab" type="button" role="tab" aria-selected="false" aria-controls="metadata-panel" tabindex="-1">Metadata</button>
+            </nav>
+
+            <section class="heatmap-layout" id="heatmap-panel" role="tabpanel" aria-labelledby="heatmap-tab">
+                <aside class="controls" aria-label="Heatmap settings">
+                    <form id="region">
+                        <h2>Region</h2>
+                        <label for="chrom">Chromosome</label>
+                        <select id="chrom"></select>
+                        <div class="interval">
+                            <div>
+                                <label for="start">Start (bp)</label>
+                                <input id="start" type="number" min="0" step="1" required>
+                            </div>
+                            <div>
+                                <label for="end">End (bp)</label>
+                                <input id="end" type="number" min="1" step="1" required>
+                            </div>
+                        </div>
+                        <p class="field-note" id="interval-note"></p>
+                        <label for="display">Display bin size (bp)</label>
+                        <input id="display" type="number" min="1" required aria-describedby="display-note">
+                        <p class="field-note" id="display-note"></p>
+                        <label for="mode">Values</label>
+                        <select id="mode" aria-describedby="mode-note">
+                            <option value="raw">Raw counts</option>
+                            <option value="balanced">Balanced</option>
+                        </select>
+                        <p class="field-note" id="mode-note" hidden></p>
+                        <button type="submit" class="button primary" id="draw">Draw heatmap</button>
+                    </form>
+                    <div class="appearance">
+                        <h2>Appearance</h2>
+                        <label for="scale">Color scale</label>
+                        <select id="scale">
+                            <option value="log">Logarithmic</option>
+                            <option value="linear">Linear</option>
+                        </select>
+                        <label for="palette">Palette</label>
+                        <select id="palette">
+                            <option value="red">Cream to red</option>
+                            <option value="blue">White to blue</option>
+                        </select>
+                    </div>
+                </aside>
+
+                <section class="plot" aria-labelledby="plot-heading">
+                    <header class="plot-header">
+                        <div>
+                            <h2 id="plot-heading">Contact heatmap</h2>
+                            <p class="plot-caption" id="caption" hidden></p>
+                        </div>
+                        <button type="button" class="button secondary" id="save-png" disabled>Export PNG</button>
+                    </header>
+                    <div class="zoom-controls" aria-label="Heatmap zoom controls">
+                        <label for="zoom">Zoom</label>
+                        <input id="zoom" type="range" min="100" max="800" value="100" step="10" disabled>
+                        <output for="zoom" id="zoom-level">100%</output>
+                        <button id="reset-view" type="button" class="button secondary" disabled>Reset view</button>
+                    </div>
+                    <p id="plot-status" class="plot-status" role="status">Reading region…</p>
+                    <figure id="figure" hidden>
+                        <p class="plot-help" id="plot-help">Zoom with Ctrl/⌘ + scroll. Drag to pan. Use arrow keys to inspect bins.</p>
+                        <div class="map-shell">
+                            <div id="y-axis" class="axis axis-y" aria-hidden="true"></div>
+                            <div class="map-stage" id="map-stage" data-zoomed="false">
+                                <canvas id="map" tabindex="0" aria-label="Contact heatmap" aria-describedby="caption plot-help">Interactive contact heatmap.</canvas>
+                            </div>
+                            <div id="x-axis" class="axis axis-x" aria-hidden="true"></div>
+                        </div>
+                        <div class="legend" id="legend">
+                            <div class="legend-scale">
+                                <span>0</span><span id="legend-gradient" class="legend-gradient" data-palette="red"></span><span id="legend-max"></span>
+                            </div>
+                            <span class="legend-missing"><i></i> Missing</span>
+                            <span id="legend-scale"></span>
+                        </div>
+                        <div class="pixel-info">
+                            <p id="pixel-empty">Hover or focus the heatmap to inspect a bin pair.</p>
+                            <dl id="pixel" hidden>
+                                <div><dt>X interval</dt><dd id="pixel-x"></dd></div>
+                                <div><dt>Y interval</dt><dd id="pixel-y"></dd></div>
+                                <div><dt id="pixel-measure">Contact count</dt><dd id="pixel-value"></dd></div>
+                            </dl>
+                            <p class="sr-only" id="pixel-announcement" role="status"></p>
+                        </div>
+                    </figure>
+                </section>
+            </section>
+
+            <section class="metadata-layout" id="metadata-panel" role="tabpanel" aria-labelledby="metadata-tab" hidden>
+                <dl id="overview" class="overview" aria-label="Resolution overview"></dl>
+                <section class="metadata-card" aria-labelledby="chromosomes-heading">
+                    <div class="metadata-heading">
+                        <div>
+                            <h2 id="chromosomes-heading">Chromosomes</h2>
+                            <p id="chromosome-count"></p>
+                        </div>
+                        <label class="filter"><span class="sr-only">Filter chromosomes</span><input id="chromosome-filter" type="search" placeholder="Filter chromosomes"></label>
+                    </div>
+                    <table>
+                        <thead><tr><th scope="col">Name</th><th scope="col">Length</th><th scope="col">Exact length (bp)</th></tr></thead>
+                        <tbody id="chromosomes"></tbody>
+                    </table>
+                    <p class="table-empty" id="chromosome-empty" hidden>No matching chromosomes.</p>
+                </section>
+                <section class="metadata-card" aria-labelledby="attributes-heading">
+                    <div class="metadata-heading">
+                        <div>
+                            <h2 id="attributes-heading">Stored attributes</h2>
+                            <p id="attributes-caption"></p>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th scope="col">Attribute</th><th scope="col">Value</th></tr></thead>
+                        <tbody id="attributes"></tbody>
+                    </table>
+                    <p class="table-empty" id="attribute-empty" hidden>No attributes were recorded.</p>
+                </section>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

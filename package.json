@@ -1,0 +1,64 @@
+{
+  "name": "mcool-reader",
+  "displayName": "MCOOL Reader",
+  "description": "Open .cool and .mcool Hi-C contact maps, explore heatmaps, and inspect Cooler metadata in VS Code.",
+  "version": "0.4.0",
+  "publisher": "local-development",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization"
+  ],
+  "keywords": [
+    "hi-c",
+    "cooler",
+    "mcool",
+    "genomics",
+    "contact map"
+  ],
+  "main": "./out/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "mcool.reader",
+        "displayName": "MCOOL Reader",
+        "selector": [
+          {
+            "filenamePattern": "*.cool"
+          },
+          {
+            "filenamePattern": "*.mcool"
+          }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "h5wasm": "0.10.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "1.85.0",
+    "@vscode/vsce": "4.1.0",
+    "typescript": "~5.8.3"
+  }
+}
