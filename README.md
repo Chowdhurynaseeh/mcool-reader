@@ -40,3 +40,8 @@ The metadata tables retain exact values for checking and copying.
 MCOOL Reader works in desktop VS Code 1.85 and later. It reads single-resolution `.cool` files and standard `.mcool` files with a `/resolutions` group. The heatmap displays one chromosome on both axes. Uncompressed and gzip-compressed datasets are supported. Files that require an HDF5 compression plugin may need a gzip copy. [Cooler format specification](https://cooler.readthedocs.io/en/latest/schema.html)
 
 The source repository includes maintainer instructions in `PUBLISHING.md`. The bundled `h5wasm` reader was developed at the National Institute of Standards and Technology. [h5wasm project](https://github.com/usnistgov/h5wasm)
+
+## Snaps
+<img width="2088" height="1732" alt="image" src="https://github.com/user-attachments/assets/5f587eaa-1397-470d-981f-84480d584e53" />
+<img width="2066" height="1736" alt="image" src="https://github.com/user-attachments/assets/e8465766-cda4-459d-923e-b31ed8938dee" />
+
